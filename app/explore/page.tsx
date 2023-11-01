@@ -26,7 +26,7 @@ const DynamicCol = dynamic(() => import("@/components/Col"), {
 const DynamicPopup = dynamic(() => import("@/components/Popup"));
 
 function Main() {
-  const mapContainer = useRef<HTMLDivElement>(null);
+  let mapContainer = useRef<HTMLDivElement>(null);
   const data = useSelector((state: RootState) => state.nfts.value);
   const geojson = useSelector((state: RootState) => state.geojson.value);
   const ACCESS_TOKEN = process.env.NEXT_PUBLIC_MAPBOX as string;
@@ -62,7 +62,7 @@ function Main() {
   }, []);
 
   useEffect(() => {
-    if (data.length !== 0 && mapContainer.current) {
+    if (data.length !== 0) {
       if (map.current === null) {
         console.log("New map created");
         map.current = new mapboxgl.Map({
