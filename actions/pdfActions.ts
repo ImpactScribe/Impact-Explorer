@@ -8,7 +8,7 @@ async function mintPDF(hash: string, tokenAccount: string) {
   let response;
   try {
     const { provider, chainID } = await getProvider();
-    const goerliID = BigInt("0x5");
+    const goerliID = 5;
 
     if (chainID !== goerliID) {
       try {
