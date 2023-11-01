@@ -6,7 +6,7 @@ import Attest from "./Attest2";
 import { useEffect, useState } from "react";
 import { isOwnerOf } from "@/actions/actions";
 import Purchase from "./Purchase";
-import { NFTData } from "@/context/types";
+import { NFTData } from "@/redux/types";
 import { RootState } from "@/redux/store";
 import { useSelector } from "react-redux";
 
