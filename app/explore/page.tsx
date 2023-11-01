@@ -6,7 +6,7 @@ import mapboxgl from "mapbox-gl";
 import dynamic from "next/dynamic";
 import { ClipLoader } from "react-spinners";
 import { getGeojson, getAll } from "@/actions/actions";
-import { NFTData } from "@/context/types";
+import { NFTData } from "@/redux/types";
 import Compass from "@/components/Compass";
 import Discover from "@/components/Discover";
 import Filter from "@/components/Filter";
