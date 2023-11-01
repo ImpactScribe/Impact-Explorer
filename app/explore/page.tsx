@@ -28,7 +28,7 @@ const DynamicPopup = dynamic(() => import("@/components/Popup"));
 function Main() {
   const data = useSelector((state: RootState) => state.nfts.value);
   const geojson = useSelector((state: RootState) => state.geojson.value);
-  let mapContainer = useRef<HTMLDivElement | null>(null);
+  const mapContainer = useRef<HTMLDivElement | null>(null);
   const ACCESS_TOKEN = process.env.NEXT_PUBLIC_MAPBOX as string;
   const dispatch = useDispatch();
   mapboxgl.accessToken = ACCESS_TOKEN;
@@ -124,7 +124,10 @@ function Main() {
           //Happy hallowen
         }
       });
-    } else console.log("Map failed to init");
+    } else {
+      console.log("Map container:", mapContainer.current);
+      console.log("Map failed to init");
+    }
     return () => {
       if (map.current) {
         map.current.remove();
@@ -152,6 +155,7 @@ function Main() {
       behavior: "smooth",
     });
   }
+  console.log(geojson);
 
   return (
     <>
