@@ -28,7 +28,7 @@ const DynamicPopup = dynamic(() => import("@/components/Popup"));
 function Main() {
   const data = useSelector((state: RootState) => state.nfts.value);
   const geojson = useSelector((state: RootState) => state.geojson.value);
-  let mapContainer = useRef<HTMLDivElement>(null);
+  let mapContainer = useRef<HTMLDivElement | null>(null);
   const ACCESS_TOKEN = process.env.NEXT_PUBLIC_MAPBOX as string;
   const dispatch = useDispatch();
   mapboxgl.accessToken = ACCESS_TOKEN;
@@ -62,7 +62,7 @@ function Main() {
   }, []);
 
   useEffect(() => {
-    if (data.length !== 0 && mapContainer.current) {
+    if (data.length !== 0 && mapContainer.current instanceof HTMLElement) {
       if (map.current === null) {
         console.log("New map created");
         map.current = new mapboxgl.Map({
@@ -124,7 +124,7 @@ function Main() {
           //Happy hallowen
         }
       });
-    }
+    } else console.log("Map failed to init");
     return () => {
       if (map.current) {
         map.current.remove();
@@ -132,7 +132,7 @@ function Main() {
         console.log("Map removed");
       }
     };
-  }, [lng, lat, zoom, geojson, data]);
+  }, [lng, lat, zoom, data, geojson]);
 
   function selectNFT(e: React.MouseEvent<HTMLDivElement>, data: NFTData) {
     if (!(e.target instanceof HTMLDivElement)) {
