@@ -28,10 +28,10 @@ const DynamicPopup = dynamic(() => import("@/components/Popup"));
 function Main() {
   const data = useSelector((state: RootState) => state.nfts.value);
   const geojson = useSelector((state: RootState) => state.geojson.value);
-  const mapContainer = useRef<HTMLDivElement | null>(null);
   const ACCESS_TOKEN = process.env.NEXT_PUBLIC_MAPBOX as string;
   const dispatch = useDispatch();
   mapboxgl.accessToken = ACCESS_TOKEN;
+  let mapContainer = useRef<HTMLDivElement>(null);
   let map = useRef<mapboxgl.Map | null>(null);
   const [details, setDetails] = useState<GeoJSON.GeoJsonProperties | undefined>(
     undefined
