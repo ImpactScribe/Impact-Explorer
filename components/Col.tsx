@@ -5,9 +5,10 @@ import Link from "next/link";
 import Attest from "./Attest2";
 import { useEffect, useState } from "react";
 import { isOwnerOf } from "@/actions/actions";
-import { useAppContext } from "@/context/AppContext";
 import Purchase from "./Purchase";
 import { NFTData } from "@/context/types";
+import { RootState } from "@/redux/store";
+import { useSelector } from "react-redux";
 
 interface ColProps {
   name?: string;
@@ -17,11 +18,13 @@ interface ColProps {
 }
 
 function Col({ click, data }: ColProps) {
+  const isConnected = useSelector(
+    (state: RootState) => state.isConnected.value
+  );
   const [isPopupOpen, setIsPopupOpen] = useState<undefined | false>(undefined);
   const [attestData, setAttestData] = useState<any[]>([]);
   const [isOwner, setIsOwner] = useState(false);
   const [claimsImgs, setClaimsImgs] = useState<any[]>([]);
-  const { isConnected } = useAppContext();
 
   useEffect(() => {
     async function getClaimsImgSrc() {

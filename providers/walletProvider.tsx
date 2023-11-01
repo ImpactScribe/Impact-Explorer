@@ -1,45 +1,45 @@
 "use client";
 
-import { createWeb3Modal } from "@web3modal/wagmi/react";
-import { walletConnectProvider } from "@web3modal/wagmi";
-import { AppContext } from "@/context/AppContext";
-import { WagmiConfig, configureChains, createConfig } from "wagmi";
-import { goerli } from "wagmi/chains";
-import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
-import { InjectedConnector } from "wagmi/connectors/injected";
-import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
+import { store } from "@/redux/store";
+import { createWeb3Modal, defaultConfig } from "@web3modal/ethers5/react";
+import { Provider } from "react-redux";
 
-// 1. Get projectId
 const projectId = process.env.NEXT_PUBLIC_PROJECT_ID as string;
 
-// 2. Create wagmiConfig
-const { chains, publicClient } = configureChains(
-  [goerli],
-  [walletConnectProvider({ projectId })]
-);
-
-const wagmiConfig = createConfig({
-  autoConnect: true,
-  connectors: [
-    new WalletConnectConnector({ options: { projectId, showQrModal: false } }),
-    new InjectedConnector({ options: { shimDisconnect: true } }),
-    new CoinbaseWalletConnector({ options: { appName: "Web3Modal" } }),
-  ],
-  publicClient,
-});
+const goerli = {
+  chainId: 5,
+  name: "Goerli Testnet",
+  currency: "ETH",
+  explorerUrl: "https://goerli.etherscan.io",
+  rpcUrl: "https://goerli.infura.io/v3/YOUR_INFURA_PROJECT_ID", // You'll need to replace "YOUR_INFURA_PROJECT_ID" with your actual Infura project ID
+};
 
 // 3. Create modal
-createWeb3Modal({ wagmiConfig, projectId, chains });
+const metadata = {
+  name: "ImapactScribe",
+  description: "Developing ImpactCerts",
+  url: "https://mywebsite.com",
+  icons: ["https://avatars.mywebsite.com/"],
+};
+
+const web3Modal = createWeb3Modal({
+  ethersConfig: defaultConfig({
+    metadata: metadata,
+    defaultChainId: 1,
+    enableEIP6963: true,
+    enableInjected: true,
+    enableCoinbase: true,
+    rpcUrl: "...", // used for the Coinbase SDK
+  }),
+  chains: [goerli],
+  projectId,
+});
 
 function WalletProvider({ children }: { children: React.ReactNode }) {
   return (
-    <>
-      <WagmiConfig config={wagmiConfig}>
-        <AppContext>
-          <div className="mt-[40px]">{children}</div>
-        </AppContext>
-      </WagmiConfig>
-    </>
+    <Provider store={store}>
+      <div className="mt-[40px]">{children}</div>
+    </Provider>
   );
 }
 export default WalletProvider;

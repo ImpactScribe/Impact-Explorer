@@ -9,7 +9,8 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import Mint from "./Mint";
-import { useAppContext } from "@/context/AppContext";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 const myFont = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -19,14 +20,18 @@ const myFont = IBM_Plex_Sans({
 
 function Navbar() {
   const [show, setShow] = useState(false);
+  const isConnected = useSelector(
+    (state: RootState) => state.isConnected.value
+  );
+  const account = useSelector((state: RootState) => state.userAccount.value);
 
   const path = usePathname();
   useEffect(() => {
     setShow(false);
   }, [path]);
-  const { isConnected, account } = useAppContext();
-  const start = account?.slice(0, 6);
-  const finish = account?.slice(-5);
+
+  const start = account.slice(0, 6);
+  const finish = account.slice(-5);
 
   return (
     <div className="fixed w-full top-0 bg-white z-[21]">

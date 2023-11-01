@@ -6,11 +6,14 @@ import mapboxgl from "mapbox-gl";
 import dynamic from "next/dynamic";
 import { ClipLoader } from "react-spinners";
 import { getGeojson, getAll } from "@/actions/actions";
-import { useAppContext } from "@/context/AppContext";
 import { NFTData } from "@/context/types";
 import Compass from "@/components/Compass";
 import Discover from "@/components/Discover";
 import Filter from "@/components/Filter";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/redux/store";
+import { setGeoJson } from "@/redux/slices/geojson.slice";
+import { getData } from "@/redux/slices/nfts.slice";
 const DynamicCol = dynamic(() => import("@/components/Col"), {
   loading: () => (
     <div
@@ -23,11 +26,12 @@ const DynamicCol = dynamic(() => import("@/components/Col"), {
 const DynamicPopup = dynamic(() => import("@/components/Popup"));
 
 function Main() {
-  let { allData, geojson, setGeojson, setAllData } = useAppContext();
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const data = useSelector((state: RootState) => state.nfts.value);
+  const geojson = useSelector((state: RootState) => state.geojson.value);
   const ACCESS_TOKEN = process.env.NEXT_PUBLIC_MAPBOX as string;
-
+  const dispatch = useDispatch();
   mapboxgl.accessToken = ACCESS_TOKEN;
-  let mapContainer = useRef<HTMLDivElement>(null);
   let map = useRef<mapboxgl.Map | null>(null);
   const [details, setDetails] = useState<GeoJSON.GeoJsonProperties | undefined>(
     undefined
@@ -46,8 +50,8 @@ function Main() {
         let allNFTData = await getAll();
         if (allNFTData !== undefined) {
           let geo = await getGeojson(allNFTData);
-          setGeojson(geo);
-          setAllData(allNFTData);
+          dispatch(setGeoJson(geo));
+          dispatch(getData(allNFTData));
           console.log("All data fetched");
           setIsLoading(false);
         }
@@ -58,7 +62,7 @@ function Main() {
   }, []);
 
   useEffect(() => {
-    if (allData.length !== 0) {
+    if (data.length !== 0 && mapContainer.current) {
       if (map.current === null) {
         console.log("New map created");
         map.current = new mapboxgl.Map({
@@ -104,7 +108,7 @@ function Main() {
         //@ts-ignore
         const id = e.features[0].properties.id;
         //@ts-ignore
-        const foundObject = allData.find((nft) => nft.id == id);
+        const foundObject = data.find((nft) => nft.id == id);
         if (foundObject) {
           setDetails(foundObject);
           setMetadataURI(foundObject.ipfsUri);
@@ -128,7 +132,7 @@ function Main() {
         console.log("Map removed");
       }
     };
-  }, [lng, lat, zoom, geojson, allData]);
+  }, [lng, lat, zoom, geojson, data]);
 
   function selectNFT(e: React.MouseEvent<HTMLDivElement>, data: NFTData) {
     if (!(e.target instanceof HTMLDivElement)) {
@@ -172,8 +176,8 @@ function Main() {
           <Filter />
           <div className="flex justify-center py-11 w-full">
             <div className="grid lg:grid-cols-4 md:grid-cols-3 md:gap-10 lg:gap-10 grid-cols-2 gap-y-5 gap-x-2">
-              {allData.length !== 0 &&
-                allData.map((nft, index) => (
+              {data.length !== 0 &&
+                data.map((nft, index) => (
                   <DynamicCol key={index} data={nft} click={selectNFT} />
                 ))}
             </div>

@@ -1,7 +1,7 @@
-import { ethers, Contract, BrowserProvider, AlchemyProvider } from "ethers";
+import { ethers, Contract, providers } from "ethers";
 import ABI from "@/ABIs/ABI.json";
 import AndroidABI from "@/ABIs/AndroidsLovingAbi.json";
-import { NFTData } from "@/context/types";
+import { NFTData } from "@/redux/types";
 import { getClaims } from "./hypercerts";
 import { getAllListing } from "./marketplace";
 declare let window: any;
@@ -27,7 +27,7 @@ export async function getProviderReadOnly() {
   return getCachedValue(key, async () => {
     let provider;
     try {
-      provider = new AlchemyProvider("goerli", alchemyKey);
+      provider = new providers.AlchemyProvider("goerli", alchemyKey);
       console.log("ReadOnly provider has been set");
     } catch (err) {
       console.error("Provider failed", err);
@@ -43,10 +43,11 @@ export async function getProvider() {
     let chainID;
     try {
       if (window.ethereum !== undefined && window.ethereum.isConnected()) {
-        provider = new ethers.BrowserProvider(window.ethereum);
-        chainID = (await provider.getNetwork()).chainId;
+        provider = new providers.Web3Provider(window.ethereum);
+        let network = await provider.getNetwork();
+        chainID = network.chainId;
         console.log("Provider has been set");
-        const goerliID = BigInt("0x5");
+        const goerliID = 5;
         if (chainID !== goerliID) {
           await provider.send("wallet_switchEthereumChain", [
             { chainId: "0x5" },
@@ -66,8 +67,8 @@ export async function getAccount() {
     let account;
     const { provider } = await getProvider();
     try {
-      if (provider instanceof BrowserProvider) {
-        const signer = await provider.getSigner();
+      if (provider instanceof providers.Web3Provider) {
+        const signer = provider.getSigner();
         account = await signer.getAddress();
         console.log("Got user account");
       }
@@ -267,7 +268,7 @@ export async function mintNft(hash: string) {
   try {
     const address = await getAccount();
     const { provider, chainID } = await getProvider();
-    const goerliID = BigInt("0x5");
+    const goerliID = 5;
 
     if (chainID !== goerliID) {
       try {
@@ -280,7 +281,7 @@ export async function mintNft(hash: string) {
       }
     }
 
-    const signer = await provider?.getSigner();
+    const signer = provider?.getSigner();
     const contractAddress = "0x4bB0a205fceD93c8834b379c461B07BBe6aAE622";
     const contract = new Contract(contractAddress, ABI, signer);
 

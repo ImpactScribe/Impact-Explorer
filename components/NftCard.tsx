@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useAppContext } from "@/context/AppContext";
+
 import { getAttributes, getTokenAccount, isOwnerOf } from "@/actions/actions";
 import { getAccountClaims } from "@/actions/hypercerts";
 
@@ -26,15 +26,15 @@ function NftCard({ id, data, name, ipfs, img }: NftCardProps) {
   const [tokenAccount, setTokenAccount] = useState<string>("");
   const [isOwner, setIsOwner] = useState(false);
   const [claimsImgs, setClaimsImgs] = useState<any[]>([]);
-  const { isConnected } = useAppContext();
 
-  useEffect(() => {
-    if (isConnected && id) {
-      isOwnerOf(id as number)
-        .then((res) => setIsOwner(res as boolean))
-        .catch((err) => console.error("Unable to define ownership", err));
-    }
-  }, [isConnected, id]);
+
+  // useEffect(() => {
+  //   if (isConnected && id) {
+  //     isOwnerOf(id as number)
+  //       .then((res) => setIsOwner(res as boolean))
+  //       .catch((err) => console.error("Unable to define ownership", err));
+  //   }
+  // }, [isConnected, id]);
 
   useEffect(() => {
     if (isPopupOpen == false) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { getAll, getGeojson, getOwnedTokens } from "@/actions/actions";
-import { useAppContext } from "@/context/AppContext";
+
 import FilterButton from "./FilterButton";
 import { useEffect, useState } from "react";
 import { Map } from "mapbox-gl";
@@ -16,7 +16,6 @@ import mapboxgl from "mapbox-gl";
 // }
 
 function Discover() {
-  let { setGeojson, setAllData, geojson, allData } = useAppContext();
   const [selectedFilter, setSelectedFilter] = useState(0);
   const filters = [
     {
@@ -25,10 +24,10 @@ function Discover() {
         try {
           let listings = await getAll();
           if (listings !== undefined) {
-            setAllData([]);
-            let geo = await getGeojson(listings);
-            setGeojson(geo);
-            setAllData(listings);
+            // setAllData([]);
+            // let geo = await getGeojson(listings);
+            // setGeojson(geo);
+            // setAllData(listings);
           }
         } catch (error) {
           console.error("Error setting data:", error);
@@ -42,10 +41,10 @@ function Discover() {
         try {
           let ownedNfts = await getOwnedTokens();
           if (ownedNfts !== undefined) {
-            setAllData([]);
-            let geo = await getGeojson(ownedNfts);
-            setAllData(ownedNfts);
-            setGeojson(geo);
+            // setAllData([]);
+            // let geo = await getGeojson(ownedNfts);
+            // setAllData(ownedNfts);
+            // setGeojson(geo);
           }
         } catch (err) {
           console.error("Failed to fetch owned NFTS:", err);

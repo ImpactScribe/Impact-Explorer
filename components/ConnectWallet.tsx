@@ -1,24 +1,23 @@
 "use client";
 
-import { useWeb3Modal } from "@web3modal/wagmi/react";
+import { useWeb3Modal } from "@web3modal/ethers5/react";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAccount } from "wagmi";
+import { useWeb3ModalAccount } from "@web3modal/ethers5/react";
 import { FaWallet } from "react-icons/fa";
-import { useAppContext } from "@/context/AppContext";
+import { useDispatch } from "react-redux";
 import { getProvider } from "@/actions/actions";
-
+import { setisConnected } from "@/redux/slices/isconnected.slice";
+import { setAccount } from "@/redux/slices/account.slice";
 interface ConnectWalletProps {
   className?: string;
 }
 
 export default function ConnectWallet({ className }: ConnectWalletProps) {
-  const { setAccount, setIsConnected } = useAppContext();
-
+  const dispatch = useDispatch();
   const router = useRouter();
-  const { open, close } = useWeb3Modal();
-  const { address, isConnecting, isDisconnected, isConnected, status } =
-    useAccount();
+  const { open } = useWeb3Modal();
+  const { address, isConnected } = useWeb3ModalAccount();
 
   const buttonRef = useRef(null);
   const [innerText, setInnerText] = useState(
@@ -55,11 +54,10 @@ export default function ConnectWallet({ className }: ConnectWalletProps) {
         .catch((err) => console.error("Error setting provider", err));
       setBtnClass(ifconn);
       setCopyShow(true);
-      setAccount(address);
-
-      setIsConnected(isConnected);
-    } else setIsConnected(isConnected);
-  }, [isConnected, address, setAccount, setIsConnected]);
+      dispatch(setAccount(address as string));
+      dispatch(setisConnected(isConnected));
+    } else return;
+  }, [isConnected, address, dispatch]);
 
   return (
     <div className={`relative`}>
