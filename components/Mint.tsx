@@ -14,7 +14,7 @@ function Mint({ children }: MintProps) {
   const [open, setOpen] = useState(false);
   const verifyNet = async () => {
     const { provider, chainID } = await getProvider();
-    const goerliID = BigInt("0x5");
+    const goerliID = 5;
     if (chainID !== goerliID) {
       await provider?.send("wallet_switchEthereumChain", [{ chainId: "0x5" }]);
     }
