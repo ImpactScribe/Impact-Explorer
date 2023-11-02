@@ -26,12 +26,10 @@ const DynamicCol = dynamic(() => import("@/components/Col"), {
 const DynamicPopup = dynamic(() => import("@/components/Popup"));
 
 function Main() {
-  const data = useSelector((state: RootState) => state.nfts.value);
-  const geojson = useSelector((state: RootState) => state.geojson.value);
   const ACCESS_TOKEN = process.env.NEXT_PUBLIC_MAPBOX as string;
   const dispatch = useDispatch();
   mapboxgl.accessToken = ACCESS_TOKEN;
-  let mapContainer = useRef<HTMLDivElement>(null);
+  let mapContainer = useRef<HTMLDivElement | null>(null);
   let map = useRef<mapboxgl.Map | null>(null);
   const [details, setDetails] = useState<GeoJSON.GeoJsonProperties | undefined>(
     undefined
@@ -52,17 +50,18 @@ function Main() {
           let geo = await getGeojson(allNFTData);
           dispatch(setGeoJson(geo));
           dispatch(getData(allNFTData));
-          console.log("All data fetched");
           setIsLoading(false);
+          console.log("All data fetched");
         }
       } catch (error) {
         console.error("Error setting data:", error);
       }
     })();
   }, []);
-
+  const data = useSelector((state: RootState) => state.nfts.value);
+  const geojson = useSelector((state: RootState) => state.geojson.value);
   useEffect(() => {
-    if (data.length !== 0 && mapContainer.current instanceof HTMLElement) {
+    if (data.length !== 0 && mapContainer.current) {
       if (map.current === null) {
         console.log("New map created");
         map.current = new mapboxgl.Map({
@@ -114,7 +113,6 @@ function Main() {
           setMetadataURI(foundObject.ipfsUri);
           setImgs(foundObject.projectImages);
           setTabOpen(true);
-
           map.current?.flyTo({
             center: [e.lngLat.lng, e.lngLat.lat],
             zoom: 7,
@@ -155,7 +153,6 @@ function Main() {
       behavior: "smooth",
     });
   }
-  console.log(geojson);
 
   return (
     <>

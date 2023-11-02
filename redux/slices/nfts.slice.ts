@@ -15,6 +15,7 @@ export const NftSlice = createSlice({
   reducers: {
     getData: (state, action: PayloadAction<NFTData[]>) => {
       state.value = action.payload;
+      console.log("Data received and updated in the state:", action.payload);
     },
   },
 });
