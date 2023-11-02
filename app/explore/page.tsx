@@ -75,18 +75,6 @@ function Main() {
           name: "mercator",
         },
       });
-    }
-    return () => {
-      if (map.current) {
-        map.current.remove();
-        map.current = null;
-        console.log("Map removed");
-      }
-    };
-  }, [lng, lat, zoom, isLoading]);
-
-  useEffect(() => {
-    if (data.length !== 0 && map.current !== null) {
       console.log("map is available");
       map.current.scrollZoom.disable();
       map.current.on("touchstart", (e) => {
@@ -133,10 +121,23 @@ function Main() {
           //Happy hallowen
         }
       });
-    } else {
-      console.log("Map data not ready");
     }
-  }, [data, geojson]);
+    return () => {
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+        console.log("Map removed");
+      }
+    };
+  }, [lng, lat, zoom, isLoading, data, geojson]);
+
+  // useEffect(() => {
+  //   if (data.length !== 0 && map.current !== null) {
+
+  //   } else {
+  //     console.log("Map data not ready");
+  //   }
+  // }, [data, geojson]);
 
   const selectNFT = (e: React.MouseEvent<HTMLDivElement>, data: NFTData) => {
     if (!(e.target instanceof HTMLDivElement)) {
