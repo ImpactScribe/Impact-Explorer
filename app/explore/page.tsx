@@ -29,8 +29,7 @@ function Main() {
   const ACCESS_TOKEN = process.env.NEXT_PUBLIC_MAPBOX as string;
   const dispatch = useDispatch();
   mapboxgl.accessToken = ACCESS_TOKEN;
-  let mapContainer = useRef<HTMLDivElement | null>(null);
-  let map = useRef<mapboxgl.Map | null>(null);
+
   const [details, setDetails] = useState<GeoJSON.GeoJsonProperties | undefined>(
     undefined
   );
@@ -58,11 +57,15 @@ function Main() {
       }
     })();
   }, []);
+
+  let mapContainer = useRef<HTMLDivElement | null>(null);
+  let map = useRef<mapboxgl.Map | null>(null);
   const data = useSelector((state: RootState) => state.nfts.value);
   const geojson = useSelector((state: RootState) => state.geojson.value);
+
   useEffect(() => {
-    if (data.length !== 0 && mapContainer.current) {
-      if (map.current === null) {
+    if (data.length !== 0) {
+      if (map.current === null && mapContainer.current) {
         console.log("New map created");
         map.current = new mapboxgl.Map({
           container: mapContainer.current as HTMLDivElement,
@@ -73,58 +76,62 @@ function Main() {
             name: "mercator",
           },
         });
+        map.current.scrollZoom.disable();
+        map.current.on("touchstart", (e) => {
+          if (e.points.length === 2) {
+            e.preventDefault();
+          }
+        });
+
+        map.current.on("load", () => {
+          if (map.current) {
+            map.current.addSource("mydata", {
+              type: "geojson",
+              data: geojson,
+            });
+
+            map.current.addLayer({
+              id: "custom-layer",
+              type: "circle",
+              source: "mydata",
+              paint: {
+                "circle-radius": 6,
+                "circle-stroke-width": 2,
+                "circle-color": "#19c37d",
+                "circle-stroke-color": "white",
+              },
+            });
+            map.current.addControl(
+              new mapboxgl.NavigationControl(),
+              "top-right"
+            );
+          }
+        });
+        map.current.on("click", "custom-layer", (e) => {
+          //@ts-ignore
+          const id = e.features[0].properties.id;
+          //@ts-ignore
+          const foundObject = data.find((nft) => nft.id == id);
+          if (foundObject) {
+            setDetails(foundObject);
+            setMetadataURI(foundObject.ipfsUri);
+            setImgs(foundObject.projectImages);
+            setTabOpen(true);
+            map.current?.flyTo({
+              center: [e.lngLat.lng, e.lngLat.lat],
+              zoom: 7,
+              essential: true,
+            });
+          } else {
+            //Happy hallowen
+          }
+        });
+      } else {
+        console.log("Map container:", mapContainer.current);
       }
-      map.current.scrollZoom.disable();
-      map.current.on("touchstart", (e) => {
-        if (e.points.length === 2) {
-          e.preventDefault();
-        }
-      });
-
-      map.current.on("load", () => {
-        if (map.current) {
-          map.current.addSource("mydata", {
-            type: "geojson",
-            data: geojson,
-          });
-
-          map.current.addLayer({
-            id: "custom-layer",
-            type: "circle",
-            source: "mydata",
-            paint: {
-              "circle-radius": 6,
-              "circle-stroke-width": 2,
-              "circle-color": "#19c37d",
-              "circle-stroke-color": "white",
-            },
-          });
-          map.current.addControl(new mapboxgl.NavigationControl(), "top-right");
-        }
-      });
       console.log("map Initialized");
-      map.current.on("click", "custom-layer", (e) => {
-        //@ts-ignore
-        const id = e.features[0].properties.id;
-        //@ts-ignore
-        const foundObject = data.find((nft) => nft.id == id);
-        if (foundObject) {
-          setDetails(foundObject);
-          setMetadataURI(foundObject.ipfsUri);
-          setImgs(foundObject.projectImages);
-          setTabOpen(true);
-          map.current?.flyTo({
-            center: [e.lngLat.lng, e.lngLat.lat],
-            zoom: 7,
-            essential: true,
-          });
-        } else {
-          //Happy hallowen
-        }
-      });
     } else {
-      console.log("Map container:", mapContainer.current);
-      console.log("Map failed to init");
+      console.log("Map data no ready");
     }
     return () => {
       if (map.current) {
